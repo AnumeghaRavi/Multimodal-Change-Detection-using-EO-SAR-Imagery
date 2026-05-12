@@ -8,13 +8,13 @@ The objective is to identify regions of structural change between pre-event and 
 
 This project was developed as part of an AI internship assignment focused on remote sensing and computer vision.
 
-
+---
 
 # Dataset
 
 The dataset contains:
 
-text
+```text
 train/
 ├── pre-event/
 ├── post-event/
@@ -29,27 +29,30 @@ test/
 ├── pre-event/
 ├── post-event/
 └── target/
-
+```
 
 ## Data Characteristics
 
-* EO imagery: RGB optical satellite images
-* SAR imagery: grayscale radar images
-* Target masks: binary building damage/change masks
+- EO imagery: RGB optical satellite images
+- SAR imagery: grayscale radar images
+- Target masks: binary building damage/change masks
 
 Image resolution:
 
-text
+```text
 1024 × 1024
+```
+
+---
 
 # Approach
 
 ## Preprocessing
 
-* TIFF image loading
-* Dataset inspection and visualization
-* Patch extraction for efficient training
-* Data augmentation using random flips
+- TIFF image loading
+- Dataset inspection and visualization
+- Patch extraction for efficient training
+- Data augmentation using random flips
 
 ## Model
 
@@ -57,8 +60,8 @@ The project uses a U-Net inspired segmentation pipeline with a pretrained ResNet
 
 Input representation combines:
 
-* 3 EO channels
-* 1 SAR channel
+- 3 EO channels
+- 1 SAR channel
 
 The network predicts binary segmentation masks representing regions of structural change.
 
@@ -66,64 +69,76 @@ The network predicts binary segmentation masks representing regions of structura
 
 To address class imbalance, the training pipeline combines:
 
-* Dice Loss
-* Cross Entropy Loss
+- Dice Loss
+- Cross Entropy Loss
+
+---
 
 # Evaluation
 
 The notebook includes:
 
-* Prediction visualization
-* Full-image inference
-* Validation pipeline
-* IoU and Dice Score evaluation
+- Prediction visualization
+- Full-image inference
+- Validation pipeline
+- IoU and Dice Score evaluation
+
+---
 
 # Tools & Technologies
 
-* Python
-* PyTorch
-* Torchvision
-* NumPy
-* Matplotlib
-* Scikit-learn
-* Kaggle Notebooks
+- Python
+- PyTorch
+- Torchvision
+- NumPy
+- Matplotlib
+- Scikit-learn
+- Kaggle Notebooks
+
+---
 
 # Challenges
 
 Some key challenges in this project include:
 
-* Cross-modal EO/SAR feature learning
-* Sparse segmentation masks
-* High class imbalance
-* Large satellite image resolution
+- Cross-modal EO/SAR feature learning
+- Sparse segmentation masks
+- High class imbalance
+- Large satellite image resolution
+
+---
 
 # Current Status
 
 Completed:
 
-* Dataset exploration
-* Data preprocessing pipeline
-* Model implementation
-* Training and evaluation setup
-* Visualization pipeline
+- Dataset exploration
+- Data preprocessing pipeline
+- Model implementation
+- Training and evaluation setup
+- Visualization pipeline
 
 Future improvements may include:
 
-* Siamese dual-encoder architectures
-* Attention-based fusion
-* Transformer-based segmentation methods
+- Siamese dual-encoder architectures
+- Attention-based fusion
+- Transformer-based segmentation methods
+
+---
 
 # Repository Structure
 
-text
+```text
 EO-SAR-Change-Detection/
 │
 ├── notebook.ipynb
 ├── README.md
 ├── requirements.txt
 └── results/
+```
 
+---
 
 # Author
 
-Anumegha K Valappil
+Anumegha Ravi
