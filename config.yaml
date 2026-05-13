@@ -1,0 +1,28 @@
+model:
+  in_channels: 4
+  num_classes: 2
+
+training:
+  epochs: 20
+  batch_size: 8
+  learning_rate: 0.0001
+  patch_size: 256
+  random_seed: 42
+  best_model_path: "checkpoints/best_model.pth"
+
+loss:
+  class_weights: [1.0, 20.0]
+
+optimizer:
+  name: adam
+  scheduler_patience: 3
+  scheduler_factor: 0.5
+
+data:
+  train_path: "data/train"
+  val_path: "data/val"
+  test_path: "data/test"
+
+augmentation:
+  horizontal_flip: true
+  flip_prob: 0.5
