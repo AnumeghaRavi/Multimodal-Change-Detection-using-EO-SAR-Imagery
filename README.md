@@ -1,144 +1,137 @@
-# EO-SAR Change Detection using Deep Learning
+# Binary Change Detection on EO-SAR Image Pairs
+### GalaxEye Space — AI Research Intern Technical Assignment
 
-## Overview
-
-This project focuses on multimodal change detection using Electro-Optical (EO) and Synthetic Aperture Radar (SAR) satellite imagery for building damage assessment.
-
-The objective is to identify regions of structural change between pre-event and post-event imagery using semantic segmentation techniques.
-
-This project was developed as part of an AI internship assignment focused on remote sensing and computer vision.
+A deep learning pipeline for pixel-level binary change detection using co-registered
+Electro-Optical (EO) and Synthetic Aperture Radar (SAR) satellite image pairs.
+Built with a pretrained ResNet34 encoder and UNet-style decoder, trained with
+combined Dice + Weighted Cross-Entropy loss to handle severe class imbalance.
 
 ---
 
-# Dataset
+## Requirements
 
-The dataset contains:
+- Python 3.10+
+- CUDA-capable GPU recommended (trained on Kaggle T4 x2)
 
-```text
-train/
-├── pre-event/
-├── post-event/
-└── target/
+Install all dependencies:
 
-val/
-├── pre-event/
-├── post-event/
-└── target/
-
-test/
-├── pre-event/
-├── post-event/
-└── target/
-```
-
-## Data Characteristics
-
-- EO imagery: RGB optical satellite images
-- SAR imagery: grayscale radar images
-- Target masks: binary building damage/change masks
-
-Image resolution:
-
-```text
-1024 × 1024
+```bash
+pip install -r requirements.txt
 ```
 
 ---
 
-# Approach
+## Environment Setup
 
-## Preprocessing
+```bash
+# Clone the repository
+git clone https://github.com/AnumeghaRavi/Multimodal-Change-Detection-using-EO-SAR-Imagery.git
+cd Multimodal-Change-Detection-using-EO-SAR-Imagery
 
-- TIFF image loading
-- Dataset inspection and visualization
-- Patch extraction for efficient training
-- Data augmentation using random flips
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate        # Linux/Mac
+venv\Scripts\activate           # Windows
 
-## Model
-
-The project uses a U-Net inspired segmentation pipeline with a pretrained ResNet encoder backbone.
-
-Input representation combines:
-
-- 3 EO channels
-- 1 SAR channel
-
-The network predicts binary segmentation masks representing regions of structural change.
-
-## Loss Functions
-
-To address class imbalance, the training pipeline combines:
-
-- Dice Loss
-- Cross Entropy Loss
-
----
-
-# Evaluation
-
-The notebook includes:
-
-- Prediction visualization
-- Full-image inference
-- Validation pipeline
-- IoU and Dice Score evaluation
-
----
-
-# Tools & Technologies
-
-- Python
-- PyTorch
-- Torchvision
-- NumPy
-- Matplotlib
-- Scikit-learn
-- Kaggle Notebooks
-
----
-
-# Challenges
-
-Some key challenges in this project include:
-
-- Cross-modal EO/SAR feature learning
-- Sparse segmentation masks
-- High class imbalance
-- Large satellite image resolution
-
----
-
-# Current Status
-
-Completed:
-
-- Dataset exploration
-- Data preprocessing pipeline
-- Model implementation
-- Training and evaluation setup
-- Visualization pipeline
-
-Future improvements may include:
-
-- Siamese dual-encoder architectures
-- Attention-based fusion
-- Transformer-based segmentation methods
-
----
-
-# Repository Structure
-
-```text
-EO-SAR-Change-Detection/
-│
-├── notebook.ipynb
-├── README.md
-├── requirements.txt
-└── results/
+# Install dependencies
+pip install -r requirements.txt
 ```
 
 ---
 
-# Author
+## Dataset Structure
 
-Anumegha Ravi
+```
+data/
+├── train/
+│   ├── pre-event/      ← EO RGB images (.tif)
+│   ├── post-event/     ← SAR grayscale images (.tif)
+│   └── target/         ← Binary change masks (.tif)
+├── val/
+│   ├── pre-event/
+│   ├── post-event/
+│   └── target/
+└── test/
+    ├── pre-event/
+    ├── post-event/
+    └── target/
+```
+
+Update `config.yaml` with the correct dataset path.
+
+---
+
+## Training
+
+```bash
+python train.py --config config.yaml
+```
+
+Model checkpoints are saved to `checkpoints/best_model.pth` (best validation F1).
+
+---
+
+## Evaluation
+
+```bash
+python eval.py \
+  --data_path data/test \
+  --weights checkpoints/best_model.pth \
+  --config config.yaml \
+  --output_dir results
+```
+
+Outputs: Precision, Recall, F1, IoU printed to console + confusion matrix saved to `results/`.
+
+---
+
+## Model Weights
+
+Pre-trained model weights (best checkpoint, epoch 12):
+
+**[Download best_model.pth from Google Drive](#)**
+> *(https://drive.google.com/file/d/10O00obZcub8o2MiHxbNvEsq_GEeE63Kb/view?usp=sharing)*
+
+---
+
+## Results
+
+| Split | Precision | Recall | F1 Score | IoU |
+|-------|-----------|--------|----------|-----|
+| Validation (334 samples) | 0.2653 | 0.5147 | 0.3501 | 0.2122 |
+| Test (77 samples, 50% blind) | 0.0319 | 0.3629 | 0.0587 | 0.0302 |
+
+Metrics computed on full images (resized to 512x512) for the **change class (label=1)**.
+
+---
+
+## Model Architecture
+
+- **Encoder**: ResNet34 pretrained on ImageNet, adapted for 4-channel input (3ch EO + 1ch SAR)
+- **Decoder**: UNet-style with skip connections at each encoder stage
+- **Loss**: Dice Loss + Weighted Cross-Entropy (weights: [1.0, 20.0])
+- **Parameters**: ~24.5M
+
+---
+
+## Key Design Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| Patch size 256x256 | Full 1024x1024 images exceed GPU memory for reasonable batch sizes |
+| 4-channel early fusion | Allows joint cross-modal learning from first layer |
+| Pretrained ResNet34 backbone | Leverages ImageNet features, reduces training time |
+| Combined Dice + Weighted CE loss | Addresses 95%/5% class imbalance |
+| Label remapping in dataloader | 25% of masks retained original 4-class values; remapping applied programmatically |
+
+---
+
+## Citation / References
+
+```
+He et al. (2016). Deep Residual Learning for Image Recognition. CVPR.
+Ronneberger et al. (2015). U-Net: Convolutional Networks for Biomedical Image Segmentation. MICCAI.
+Daudt et al. (2018). Fully Convolutional Siamese Networks for Change Detection. ICIP.
+Chen & Shi (2021). A Spatial-Temporal Attention-Based Method for Remote Sensing Change Detection.
+Milletari et al. (2016). V-Net: Fully Convolutional Neural Networks for Volumetric Medical Image Segmentation.
+```
