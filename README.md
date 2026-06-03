@@ -57,7 +57,7 @@ data/
     └── target/
 ```
 
-Update `config.yaml` with the correct dataset path.
+ `config.yaml` with the correct dataset path.
 
 ---
 
